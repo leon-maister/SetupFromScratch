@@ -15,7 +15,7 @@ NC="$(printf '\033[0m')"
 # --- Variables ---
 NAMESPACE="from-scratch"
 CURRENT_CONTEXT=$(kubectl config current-context)
-SECRET_NAME="customer-fragment"
+CUSTOMER_FRAGMENT_SECRET_NAME="customer-fragment"
 FRAGMENT_FILE="customer_fragments.json"
 VALUES_FILE="from_scratch_values.yaml"
 
@@ -46,20 +46,20 @@ printf "${GREEN}SUCCESS:${NC} Fragment saved to %s\n" "$FRAGMENT_FILE"
 
 # --- Recreate Secret Logic ---
 
-if kubectl get secret "$SECRET_NAME" >/dev/null 2>&1; then
-    printf "${YELLOW}Secret %s already exists. Deleting...${NC}\n" "$SECRET_NAME"
-    kubectl delete secret "$SECRET_NAME"
+if kubectl get secret "$CUSTOMER_FRAGMENT_SECRET_NAME" >/dev/null 2>&1; then
+    printf "${YELLOW}Secret %s already exists. Deleting...${NC}\n" "$CUSTOMER_FRAGMENT_SECRET_NAME"
+    kubectl delete secret "$CUSTOMER_FRAGMENT_SECRET_NAME"
 fi
 
-printf "${CYAN}Creating secret %s...${NC}\n" "$SECRET_NAME"
+printf "${CYAN}Creating customer fragment secret %s...${NC}\n" "$CUSTOMER_FRAGMENT_SECRET_NAME"
 
-kubectl create secret generic "$SECRET_NAME" \
+kubectl create secret generic "$CUSTOMER_FRAGMENT_SECRET_NAME" \
   --from-file=customer-fragments="$(pwd)/$FRAGMENT_FILE"
 
-if kubectl get secret "$SECRET_NAME" >/dev/null 2>&1; then
-    printf "${GREEN}SUCCESS:${NC} Secret %s created successfully in namespace %s.\n" "$SECRET_NAME" "$NAMESPACE"
+if kubectl get secret "$CUSTOMER_FRAGMENT_SECRET_NAME" >/dev/null 2>&1; then
+    printf "${GREEN}SUCCESS:${NC} Secret %s created successfully in namespace %s.\n" "$CUSTOMER_FRAGMENT_SECRET_NAME" "$NAMESPACE"
 else
-    printf "${RED}ERROR:${NC} Secret %s was not created.\n" "$SECRET_NAME"
+    printf "${RED}ERROR:${NC} Secret %s was not created.\n" "$CUSTOMER_FRAGMENT_SECRET_NAME"
     exit 1
 fi
 

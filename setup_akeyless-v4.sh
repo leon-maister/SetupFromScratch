@@ -256,3 +256,17 @@ echo " Access ID:  $GW_ACCESS_ID"
 # Using printf to correctly render the color if the key is hidden
 printf " Access Key: %b\n" "$GW_ACCESS_KEY"
 echo "--------------------------------------------------------"
+
+GW_PROPS_FILE="gw-setup.properties"
+
+cat > "$GW_PROPS_FILE" <<EOF
+ADMIN_AUTH_METHOD_NAME=$AUTH_METHOD_NAME
+ADMIN_ACCESS_ID=$FINAL_ACCESS_ID
+ADMIN_ACCESS_KEY=$FINAL_ACCESS_KEY
+
+GATEWAY_AUTH_METHOD_NAME=$GW_AUTH_METHOD_NAME
+GATEWAY_ACCESS_ID=$GW_ACCESS_ID
+GATEWAY_ACCESS_KEY=$GW_ACCESS_KEY
+EOF
+
+printf "${GREEN}SUCCESS:${NC} Properties saved to %s\n" "$GW_PROPS_FILE"

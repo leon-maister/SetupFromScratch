@@ -1,0 +1,11 @@
+{
+  "customer_fragments": [
+    {
+      "id": "cf-t0xe1b1kaxk3et9d0d4i",
+      "value": "LCKhZmPYk1CGCqknV/HwlqbgwT9AF3fFtppbWkaBzQtz6nDpyY4e7BKQcC1dBvGYHc+a477MKkJRxIO5HKiuXw==",
+      "description": "customer_fragment_number1",
+      "name": "customer_fragment_number1",
+      "fragment_type": "standard"
+    }
+  ]
+}

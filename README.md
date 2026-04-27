@@ -8,9 +8,24 @@ This repository contains a suite of scripts designed to automate the deployment 
 ## 📂 Core Components
 | File | Function |
 | :--- | :--- |
-| gw-install-prep.sh | **Preparation**: Automates Namespace creation, K8s Secrets provisioning, and dynamic Values patching. |
+| **setup_akeyless-v4.sh** | **Main Orchestrator**: The entrypoint script that triggers the entire automation workflow. |
+| gw-install-prep.sh | **Preparation Engine**: Automates Namespace creation, K8s Secrets provisioning, and dynamic Values patching. |
 | gw-setup.properties | **Configuration**: Source of truth for Gateway Access IDs, Admin IDs, and Cluster names. |
 | gw-prep-conf.properties | **Logic Toggles**: Configuration file to enable/disable specific automation features like YAML patching. |
+
+## 🚀 Main Workflow (setup_akeyless-v4.sh)
+The `setup_akeyless-v4.sh` acts as the master controller for the installation process:
+
+### 1. Initialization
+- Triggers the execution of `gw-install-prep.sh` to ensure the environment is ready.
+- Validates that all required configuration files and generated values are present.
+
+### 2. Dependency Orchestration
+- Ensures that the Kubernetes infrastructure (Namespace, Secrets) is provisioned before proceeding.
+- Coordinates the flow between environment preparation and the actual deployment logic.
+
+### 3. Execution Control
+- Acts as a high-level wrapper to simplify the user experience, allowing the entire setup to be triggered with a single command.
 
 ## 🏗️ Preparation Scope (gw-install-prep.sh)
 The `gw-install-prep.sh` script handles the heavy lifting before the Helm deployment:
@@ -21,34 +36,22 @@ The `gw-install-prep.sh` script handles the heavy lifting before the Helm deploy
 
 ### 2. Kubernetes Secret Provisioning
 - **Gateway Credentials**: Automatically creates a K8s secret containing the `access-id` and `access-key` from properties.
-- **Idempotency**: Skips creation if the secret already exists to prevent errors.
 
 ### 3. Dynamic Helm Values Patching
 - **Fresh Generation**: Downloads the latest `values.yaml` from the Akeyless Helm chart.
-- **Smart Injection**: Uses `sed` and temporary buffers to inject Cluster Name, Gateway IDs, and Admin Permissions.
-- **YAML Integrity**: Ensures perfect indentation (2/4/6 spaces) for the `allowedAccessPermissions` block.
-- **Conditional Logic**: Only patches if the file is new or the `PATCH_VALUES_YAML` toggle is enabled.
+- **Smart Injection**: Injects Cluster Name, Gateway IDs, and Admin Permissions with perfect YAML indentation.
 
 ## ⚙️ Configuration Variables
-The following parameters are managed through `.properties` files:
+- **GATEWAY_ACCESS_ID**: Gateway identity token.
+- **ADMIN_ACCESS_ID**: ID granted administrative permissions.
+- **PATCH_VALUES_YAML**: Set to `true` in `gw-prep-conf.properties` to enable auto-patching.
 
-### Gateway Settings (gw-setup.properties)
-- **GATEWAY_ACCESS_ID**: The ID for the Gateway to identify itself.
-- **ADMIN_ACCESS_ID**: The ID that will be granted administrative permissions.
-- **CLUSTER_NAME**: The unique identifier for this cluster in Akeyless.
-
-### Logic Settings (gw-prep-conf.properties)
-- **NAMESPACE**: The target K8s namespace.
-- **PATCH_VALUES_YAML**: Set to `true` to enable automatic YAML modification.
-
-## 🚀 Usage
-1. Populate your `gw-setup.properties` with valid Akeyless IDs.
-2. Run the preparation script:
+## 🏁 How to Run
+To start the entire automated process, simply run the master script:
 ```bash
-chmod +x gw-install-prep.sh
-./gw-install-prep.sh
+chmod +x *.sh
+./setup_akeyless-v4.sh
 ```
-3. The script will generate a ready-to-use `${NAMESPACE}_values.yaml` file.
 
 ---
 **Maintained by**: [leon-maister](https://github.com/leon-maister)

@@ -60,3 +60,5 @@ Once Phase 1 is complete, run the preparation engine:
 
 ---
 **Maintained by**: [leon-maister](https://github.com/leon-maister)
+
+<sub><sup><span style="color:gray">/home/keyless/SetupFromScratch</span></sup></sub>

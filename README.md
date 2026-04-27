@@ -25,7 +25,7 @@ chmod +x *.sh
 ```
 
 ## 🗝️ Akeyless Fragment Generation
-Before infrastructure provisioning, the suite automatically generates a secure **Customer Fragment (JSON)**. This is a critical security component required for the Gateway's encryption service, ensuring a Zero-Knowledge architecture where part of the encryption key remains solely under your control.
+The suite automatically generates the secure **Customer Fragment (JSON)** file required for the Gateway's encryption services.
 
 ## 2️⃣ Phase 2: gw-install-prep.sh (Infrastructure & Patching Engine)
 

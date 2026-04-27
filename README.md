@@ -24,9 +24,6 @@ chmod +x *.sh
 ./setup_akeyless-v4.sh
 ```
 
-## 🗝️ Akeyless Fragment Generation
-The suite automatically generates the secure **Customer Fragment (JSON)** file required for the Gateway's encryption services.
-
 ## 2️⃣ Phase 2: gw-install-prep.sh (Infrastructure & Patching Engine)
 
 The `gw-install-prep.sh` script handles the **heavy lifting** before the Helm deployment:

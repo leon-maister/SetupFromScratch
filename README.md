@@ -20,9 +20,10 @@ This script is the **brain** of the operation. It interacts directly with the Ak
 ### 🚀 Execution of Phase 1:
 To start the entire automated process, run the master orchestrator:
 
+```bash
 chmod +x *.sh
 ./setup_akeyless-v4.sh
-
+```
 
 ## 2️⃣ Phase 2: gw-install-prep.sh (Infrastructure & Patching Engine)
 
@@ -53,8 +54,9 @@ The "gw-install-prep.sh" script handles the **heavy lifting** before the Helm de
 ### 🚀 Execution of Phase 2:
 Once Phase 1 is complete, run the preparation engine:
 
+```bash
 ./gw-install-prep.sh
-
+```
 
 ---
 **Maintained by**: [leon-maister](https://github.com/leon-maister)

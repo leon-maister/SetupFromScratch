@@ -24,21 +24,13 @@ chmod +x *.sh
 ./setup_akeyless-v4.sh
 ```
 
-## ⚙️ Configuration Variables
-Managed through `.properties` files:
-
-### Logic Settings (gw-prep-conf.properties)
-- **NAMESPACE**: The target K8s namespace.
-- **PATCH_VALUES_YAML**: Set to `true` to enable automatic YAML modification.
-
-### Gateway Settings (gw-setup.properties)
-- **GATEWAY_ACCESS_ID**: The ID for the Gateway identity.
-- **ADMIN_ACCESS_ID**: The ID granted administrative permissions.
-- **CLUSTER_NAME**: Unique identifier for this cluster in Akeyless.
-
 ## 2️⃣ Phase 2: gw-install-prep.sh (Infrastructure & Patching Engine)
 
-The `gw-install-prep.sh` script handles the **heavy lifting** before the Helm deployment:
+The `gw-install-prep.sh` script handles the **heavy lifting** before the Helm deployment.
+
+### ⚙️ Logic Settings (gw-prep-conf.properties)
+- **NAMESPACE**: The target K8s namespace.
+- **PATCH_VALUES_YAML**: Set to `true` to enable automatic YAML modification.
 
 ### 🛠️ Preparation Scope:
 - **Environment & Context Validation**: Checks for configuration files and creates the target **Kubernetes Namespace** if it doesn't exist.
@@ -46,6 +38,11 @@ The `gw-install-prep.sh` script handles the **heavy lifting** before the Helm de
 - **Dynamic Helm Values Patching**: 
     - Downloads the latest `values.yaml` from the Akeyless Helm chart and renames it using the target Namespace (e.g., `${NAMESPACE}_values.yaml`).
     - Injects Gateway IDs, Admin Permissions, Cluster Name, and Cluster Display Name.
+
+## 📂 Gateway Settings (gw-setup.properties)
+- **GATEWAY_ACCESS_ID**: The ID for the Gateway identity.
+- **ADMIN_ACCESS_ID**: The ID granted administrative permissions.
+- **CLUSTER_NAME**: Unique identifier for this cluster in Akeyless.
 
 ---
 **Maintained by**: [leon-maister](https://github.com/leon-maister)

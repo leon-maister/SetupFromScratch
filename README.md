@@ -30,7 +30,8 @@ The `gw-install-prep.sh` script handles the **heavy lifting** before the Helm de
 
 ### 🛠️ Preparation Scope:
 - **Environment & Context Validation**: Checks for configuration files and creates the target **Kubernetes Namespace** if it doesn't exist.
-- **Kubernetes Secret Provisioning**: Automatically creates a K8s secret containing the `access-id` and `access-key` from properties. Skips if already exists (**Idempotency**).
+- **Akeyless Fragment Generation**: Automatically generates a secure Customer Fragment (JSON) required for the Gateway's encryption service.
+- **Kubernetes Secret Provisioning**: Automatically creates K8s secrets for both Gateway credentials and the generated Customer Fragment. Skips if already exists (**Idempotency**).
 - **Dynamic Helm Values Patching**: 
     - Downloads the latest `values.yaml` from the Akeyless Helm chart.
     - Injects Cluster Name, Gateway IDs, and Admin Permissions using `sed`.

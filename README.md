@@ -28,7 +28,7 @@ chmod +x *.sh
 
 The `gw-install-prep.sh` script handles the **heavy lifting** before the Helm deployment.
 
-### ⚙️ Logic Settings (gw-prep-conf.properties)
+### ⚙️ Environment Configuration (gw-prep-conf.properties)
 - **NAMESPACE**: The target Kubernetes Namespace for the Gateway installation.
 - **CUSTOMER_FRAGMENT_SECRET_NAME**: Name of the K8s secret that will store the Customer Fragment.
 - **FRAGMENT_FILE**: The filename of your customer fragment JSON file.

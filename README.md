@@ -34,7 +34,7 @@ The `gw-install-prep.sh` script handles the **heavy lifting** before the Helm de
 - **Kubernetes Secret Provisioning**: Automatically creates K8s secrets for both Gateway credentials and the generated Customer Fragment. Skips if already exists (**Idempotency**).
 - **Dynamic Helm Values Patching**: 
     - Downloads the latest `values.yaml` from the Akeyless Helm chart.
-    - Injects Cluster Name, Gateway IDs, and Admin Permissions using `sed`.
+    - Injects Gateway IDs, Admin Permissions, Cluster Name, and Cluster Display Name.
 
 ## ⚙️ Configuration Variables
 Managed through `.properties` files:

@@ -12,12 +12,28 @@ YELLOW="$(printf '\033[0;33m')"
 CYAN="$(printf '\033[0;36m')"
 NC="$(printf '\033[0m')"
 
+# --- Load Configuration ---
+CONF_FILE="gw-prep-conf.properties"
+
+if [ -f "$CONF_FILE" ]; then
+    echo "Loading configuration from $CONF_FILE..."
+    source "$CONF_FILE"
+else
+    echo "Error: $CONF_FILE not found!"
+    exit 1
+fi 
+
 # --- Variables ---
-NAMESPACE="from-scratch"
+# --- Variables ---
+# The following values are now loaded from gw-prep-conf.properties:
+# NAMESPACE, CUSTOMER_FRAGMENT_SECRET_NAME, FRAGMENT_FILE
+
+# Dynamically determine the current Kubernetes context
 CURRENT_CONTEXT=$(kubectl config current-context)
-CUSTOMER_FRAGMENT_SECRET_NAME="customer-fragment"
-FRAGMENT_FILE="customer_fragments.json"
-VALUES_FILE="from_scratch_values.yaml"
+
+# Automatically set the values file name based on the NAMESPACE
+VALUES_FILE="${NAMESPACE}_values.yaml"
+
 
 printf "${CYAN}Creating namespace (if needed)...${NC}\n"
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -

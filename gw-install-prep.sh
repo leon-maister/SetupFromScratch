@@ -110,18 +110,72 @@ fi
 
 # --- Kubernetes Secret Provisioning ---
 
-# 1. Extract the Gateway Access Key accurately (preserving any '=' signs within the key)
-# Using sed to remove the prefix and keep the rest of the string intact
-GW_ACCESS_KEY=$(grep 'GATEWAY_ACCESS_KEY=' gw-setup.properties | sed 's/^GATEWAY_ACCESS_KEY=//')
+# 1. Check if the setup properties file exists
+SETUP_FILE="gw-setup.properties"
+if [ ! -f "$SETUP_FILE" ]; then
+    printf "${YELLOW}WARNING: $SETUP_FILE not found!${NC}\n"
+    printf "${CYAN}Please create the 'access-key' secret manually later using:${NC}\n"
+    printf "kubectl create secret generic access-key --from-literal=gateway-access-key=YOUR_KEY -n $NAMESPACE\n"
+    exit 1
+fi
+
+# 2. Extract the Gateway Access Key accurately
+GW_ACCESS_KEY=$(grep 'GATEWAY_ACCESS_KEY=' "$SETUP_FILE" | sed 's/^GATEWAY_ACCESS_KEY=//')
+
+# 3. Check if the key was actually found and is not empty
+if [ -z "$GW_ACCESS_KEY" ]; then
+    printf "${YELLOW}WARNING: GATEWAY_ACCESS_KEY is missing or empty in $SETUP_FILE!${NC}\n"
+    printf "${CYAN}You will need to provision the 'access-key' secret manually to make the Gateway work.${NC}\n"
+    exit 1
+fi
 
 echo "Creating Kubernetes secret 'access-key' in namespace $NAMESPACE..."
 
-# 2. Create the secret using the full plaintext Access Key
-# Using 'echo -n' to prevent adding any trailing newline characters
+# 4. Create the secret only if we have the key
 kubectl create secret generic access-key \
   --from-literal=gateway-access-key="$(echo -n "$GW_ACCESS_KEY")" \
   -n "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
 
 printf "${GREEN}SUCCESS: Secret 'access-key' provisioned correctly.${NC}\n"
+
+# --- Dynamic Values File Patching (Final Reliable Method) ---
+
+# 1. Extract IDs from gw-setup.properties
+GW_ACCESS_ID=$(grep 'GATEWAY_ACCESS_ID=' gw-setup.properties | cut -d'=' -f2)
+ADMIN_ACCESS_ID=$(grep 'ADMIN_ACCESS_ID=' gw-setup.properties | cut -d'=' -f2)
+
+# Use the secret name from our central configuration
+SECRET_NAME="$CUSTOMER_FRAGMENT_SECRET_NAME"
+
+printf "${CYAN}Patching $VALUES_FILE with dynamic configuration...${NC}\n"
+
+if [ -f "$VALUES_FILE" ]; then
+    # Patch simple fields
+    sed -i "s/gatewayAccessId:.*/    gatewayAccessId: $GW_ACCESS_ID/" "$VALUES_FILE"
+    sed -i "s/gatewayAccessType:.*/    gatewayAccessType: access_key/" "$VALUES_FILE"
+    sed -i "s/gatewayCredentialsExistingSecret:.*/    gatewayCredentialsExistingSecret: $SECRET_NAME/" "$VALUES_FILE"
+
+    # 2. Create a temporary file with EXACT 2-space indentation
+    # This matches your visual observation of the YAML structure
+    cat <<EOF > permissions.tmp
+  allowedAccessPermissions:
+    - name: admin-access-key
+      access_id: $ADMIN_ACCESS_ID
+      permissions:
+        - admin
+EOF
+
+    # 3. Replace ONLY the line that contains the empty brackets []
+    # This fixes indentation for line 22 and PREVENTS DUPLICATES below
+    sed -i -e '/allowedAccessPermissions: \[\]/ {' -e 'r permissions.tmp' -e 'd' -e '}' "$VALUES_FILE"
+
+    # Clean up
+    rm permissions.tmp
+
+    printf "${GREEN}SUCCESS: $VALUES_FILE fully patched and formatted.${NC}\n"
+else
+    printf "${RED}ERROR: $VALUES_FILE not found!${NC}\n"
+    exit 1
+fi
 
 printf "\n${GREEN} Environment preparation completed successfully.${NC}\n"

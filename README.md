@@ -51,4 +51,5 @@ Managed through `.properties` files:
 
 ---
 **Maintained by**: [leon-maister](https://github.com/leon-maister)
+
 <sub style="color: gray;">Context: $(pwd) | $(kubectl config current-context 2>/dev/null || echo "no-k8s-context")</sub>

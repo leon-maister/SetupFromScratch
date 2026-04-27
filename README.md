@@ -24,13 +24,15 @@ chmod +x *.sh
 ./setup_akeyless-v4.sh
 ```
 
+## 🗝️ Akeyless Fragment Generation
+Before infrastructure provisioning, the suite automatically generates a secure **Customer Fragment (JSON)**. This is a critical security component required for the Gateway's encryption service, ensuring a Zero-Knowledge architecture where part of the encryption key remains solely under your control.
+
 ## 2️⃣ Phase 2: gw-install-prep.sh (Infrastructure & Patching Engine)
 
 The `gw-install-prep.sh` script handles the **heavy lifting** before the Helm deployment:
 
 ### 🛠️ Preparation Scope:
 - **Environment & Context Validation**: Checks for configuration files and creates the target **Kubernetes Namespace** if it doesn't exist.
-- **Akeyless Fragment Generation**: Automatically generates a secure Customer Fragment (JSON) required for the Gateway's encryption service.
 - **Kubernetes Secret Provisioning**: Automatically creates K8s secrets for both Gateway credentials and the generated Customer Fragment. Skips if already exists (**Idempotency**).
 - **Dynamic Helm Values Patching**: 
     - Downloads the latest `values.yaml` from the Akeyless Helm chart and renames it using the target Namespace (e.g., `${NAMESPACE}_values.yaml`).

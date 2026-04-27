@@ -14,7 +14,7 @@ This script is the **brain** of the operation. It interacts directly with the Ak
 ### 🔍 Detailed Workflow of Phase 1:
 - **CLI Automation**: Installs and configures the Akeyless binary to ensure environment readiness.
 - **Security Provisioning**: Creates two distinct API-Key Authentication Methods (Admin and Gateway).
-- **RBAC Enforcement**: Configures Roles and Associations with granular permissions (full access for Admin, restricted operational access for Gateway).
+- **RBAC Enforcement**: Configures Roles and Associations with granular permissions.
 - **Artifact Generation**: Generates the `gw-setup.properties` file, capturing newly created Access IDs and Keys for Phase 2.
 
 ### 🚀 Execution of Phase 1:
@@ -29,8 +29,14 @@ chmod +x *.sh
 The `gw-install-prep.sh` script handles the **heavy lifting** before the Helm deployment.
 
 ### ⚙️ Logic Settings (gw-prep-conf.properties)
-- **NAMESPACE**: The target K8s namespace.
-- **PATCH_VALUES_YAML**: Set to `true` to enable automatic YAML modification.
+- **NAMESPACE**: The target Kubernetes Namespace for the Gateway installation.
+- **CUSTOMER_FRAGMENT_SECRET_NAME**: Name of the K8s secret that will store the Customer Fragment.
+- **FRAGMENT_FILE**: The filename of your customer fragment JSON file.
+- **ACCESS_KEY_SECRET_NAME**: Name of the K8s secret that will store the Gateway Access Key.
+- **RELEASE_NAME**: The Helm release name for the Gateway deployment.
+- **PATCH_VALUES_YAML**: Set to `true` to enable automatic modification of the values file.
+- **CLUSTER_NAME**: The unique ID for this cluster within Akeyless.
+- **CLUSTER_DISPLAY_NAME**: The human-readable name for the cluster in the Akeyless UI.
 
 ### 🛠️ Preparation Scope:
 - **Environment & Context Validation**: Checks for configuration files and creates the target **Kubernetes Namespace** if it doesn't exist.

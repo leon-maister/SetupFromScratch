@@ -1,25 +1,25 @@
-# Setup From Scratch (Akeyless Gateway Suite)
+# Setup From Scratch (Akeyless Gateway Automation Suite)
 
-This project is strategically divided into two distinct phases to ensure a robust and error-free deployment.
+This project is divided into two professional automation phases.
 
-## 1️⃣ Phase 1: setup_akeyless-v4.sh (Master Orchestrator)
+## 1️⃣ Phase 1: setup_akeyless-v4.sh (Akeyless API Orchestrator)
 
-The `setup_akeyless-v4.sh` script serves as the **primary entrypoint** and environment validator. It is responsible for the high-level orchestration of the installation process.
+This script is the **brain** of the operation. It interacts directly with the Akeyless API to provision all necessary access objects before any infrastructure is touched.
 
-### 🔍 Detailed Responsibilities of Phase 1:
-- **Environment Sanitation**: Verifies that the local machine has all required binary dependencies installed and accessible in the PATH.
-- **Helm Repository Governance**: Automates the `helm repo add` and `helm repo update` commands to ensure the Gateway is deployed from the most recent official Akeyless charts.
-- **Pre-flight Configuration Check**: Confirms that both `gw-setup.properties` and `gw-prep-conf.properties` exist, preventing execution with missing parameters.
-- **Execution Flow Control**: Once the environment is validated, it triggers **Phase 2** (`gw-install-prep.sh`) to handle specific resource provisioning.
+### 🔍 Detailed Workflow of Phase 1:
+- **CLI Automation**: Installs and configures the Akeyless binary to ensure environment readiness.
+- **Security Provisioning**: Creates two distinct API-Key Authentication Methods (Admin and Gateway).
+- **RBAC Enforcement**: Configures Roles and Associations with granular permissions (full access for Admin, restricted operational access for Gateway).
+- **Dynamic Configuration (The Glue)**: Generates the `gw-setup.properties` file, capturing newly created Access IDs and Keys for use in Phase 2.
 
-## 2️⃣ Phase 2: gw-install-prep.sh (Infrastructure & Patching Engine)
+## 2️⃣ Phase 2: gw-install-prep.sh (Kubernetes & Helm Pre-flight)
 
-This phase handles the "surgical" part of the setup:
-- **Namespace & Secrets**: Creation of the K8s namespace and the `access-key` authentication secret.
-- **Dynamic Values Patching**: Automates the modification of the Helm `values.yaml` with precise indentation and real-time data injection.
+Once the Akeyless side is ready, Phase 2 takes over to bridge the gap to Kubernetes:
+- **K8s Infrastructure**: Automates Namespace creation and Secret provisioning using IDs from Phase 1.
+- **Intelligent Patching**: Generates and modifies the Helm `values.yaml` with precise YAML-compliant indentation and dynamic data injection.
 
-## 🚀 Execution
-To begin the process, you only need to run the Phase 1 script:
+## 🚀 How to Run
+Everything starts with a single command:
 ```bash
 chmod +x *.sh
 ./setup_akeyless-v4.sh

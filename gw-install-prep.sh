@@ -98,14 +98,22 @@ printf "${CYAN}Updating Helm repositories...${NC}\n"
 helm repo add akeyless https://akeylesslabs.github.io/helm-charts >/dev/null 2>&1 || true
 helm repo update
 
-# --- Values file logic ---
+# --- Helm Values Preparation ---
+# Flag to track if we should perform patching
+SHOULD_PATCH=false
 
 if [ -f "$VALUES_FILE" ]; then
-    printf "${YELLOW}File %s already exists. Skipping helm show values.${NC}\n" "$VALUES_FILE"
+    printf "${YELLOW}File %s already exists. Skipping helm show values and patching.${NC}\n" "$VALUES_FILE"
 else
-    printf "${CYAN}Generating %s...${NC}\n" "$VALUES_FILE"
-    helm show values akeyless/akeyless-gateway > "$VALUES_FILE"
-    printf "${GREEN}SUCCESS:${NC} %s created.\n" "$VALUES_FILE"
+    # Only proceed with generation and patching if the switch is ON
+    if [ "$PATCH_VALUES_YAML" = "true" ]; then
+        printf "${CYAN}Generating fresh %s...${NC}\n" "$VALUES_FILE"
+        helm show values akeyless/akeyless-gateway > "$VALUES_FILE"
+        printf "${GREEN}SUCCESS:${NC} %s created.\n" "$VALUES_FILE"
+        SHOULD_PATCH=true
+    else
+        printf "${YELLOW}SKIP: Patching is disabled in config (PATCH_VALUES_YAML=false).${NC}\n"
+    fi
 fi
 
 # --- Kubernetes Secret Provisioning ---
@@ -138,25 +146,16 @@ kubectl create secret generic access-key \
 
 printf "${GREEN}SUCCESS: Secret 'access-key' provisioned correctly.${NC}\n"
 
-# --- Dynamic Values File Patching (Final Reliable Method) ---
+# --- Dynamic Values File Patching ---
+if [ "$SHOULD_PATCH" = "true" ]; then
+    printf "${CYAN}Patching %s with dynamic configuration...${NC}\n" "$VALUES_FILE"
 
-# 1. Extract IDs from gw-setup.properties
-GW_ACCESS_ID=$(grep 'GATEWAY_ACCESS_ID=' gw-setup.properties | cut -d'=' -f2)
-ADMIN_ACCESS_ID=$(grep 'ADMIN_ACCESS_ID=' gw-setup.properties | cut -d'=' -f2)
+    # 1. Extract IDs from properties
+    GW_ACCESS_ID=$(grep 'GATEWAY_ACCESS_ID=' gw-setup.properties | cut -d'=' -f2)
+    ADMIN_ACCESS_ID=$(grep 'ADMIN_ACCESS_ID=' gw-setup.properties | cut -d'=' -f2)
 
-# Use the secret name from our central configuration
-SECRET_NAME="$CUSTOMER_FRAGMENT_SECRET_NAME"
-
-printf "${CYAN}Patching $VALUES_FILE with dynamic configuration...${NC}\n"
-
-if [ -f "$VALUES_FILE" ]; then
-    # Patch simple fields
-    sed -i "s/gatewayAccessId:.*/    gatewayAccessId: $GW_ACCESS_ID/" "$VALUES_FILE"
-    sed -i "s/gatewayAccessType:.*/    gatewayAccessType: access_key/" "$VALUES_FILE"
-    sed -i "s/gatewayCredentialsExistingSecret:.*/    gatewayCredentialsExistingSecret: $SECRET_NAME/" "$VALUES_FILE"
-
-    # 2. Create a temporary file with EXACT 2-space indentation
-    # This matches your visual observation of the YAML structure
+    # 2. Create a temporary file with 2-space indent for the header
+    # and 4-space indent for the items inside.
     cat <<EOF > permissions.tmp
   allowedAccessPermissions:
     - name: admin-access-key
@@ -165,17 +164,21 @@ if [ -f "$VALUES_FILE" ]; then
         - admin
 EOF
 
-    # 3. Replace ONLY the line that contains the empty brackets []
-    # This fixes indentation for line 22 and PREVENTS DUPLICATES below
+    # 3. Apply patches with EXACT 4-space indentation
+    # Count carefully: 4 spaces after the second '/'
+    sed -i "s/gatewayAccessId:.*/gatewayAccessId: $GW_ACCESS_ID/" "$VALUES_FILE"
+    sed -i "s/gatewayAccessType:.*/gatewayAccessType: access_key/" "$VALUES_FILE"
+    sed -i "s/gatewayCredentialsExistingSecret:.*/gatewayCredentialsExistingSecret: $CUSTOMER_FRAGMENT_SECRET_NAME/" "$VALUES_FILE"
+    
+    # 4. Replace the placeholder line with our 2-space indented block
+    sed -i -e '/allowedAccessPermissions: \[\]/ {' -e 'r permissions.tmp' -e 'd' -e '}' "$VALUES_FILE"
+    
+    # 4. Replace the empty brackets with the multiline block from temp file
+    # This specifically targets the line with '[]' to avoid double patching
     sed -i -e '/allowedAccessPermissions: \[\]/ {' -e 'r permissions.tmp' -e 'd' -e '}' "$VALUES_FILE"
 
     # Clean up
     rm permissions.tmp
-
-    printf "${GREEN}SUCCESS: $VALUES_FILE fully patched and formatted.${NC}\n"
-else
-    printf "${RED}ERROR: $VALUES_FILE not found!${NC}\n"
-    exit 1
+    printf "${GREEN}SUCCESS: %s fully patched and ready.${NC}\n" "$VALUES_FILE"
 fi
-
 printf "\n${GREEN} Environment preparation completed successfully.${NC}\n"

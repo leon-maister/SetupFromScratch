@@ -153,6 +153,8 @@ if [ "$SHOULD_PATCH" = "true" ]; then
     # 1. Extract IDs from properties
     GW_ACCESS_ID=$(grep 'GATEWAY_ACCESS_ID=' gw-setup.properties | cut -d'=' -f2)
     ADMIN_ACCESS_ID=$(grep 'ADMIN_ACCESS_ID=' gw-setup.properties | cut -d'=' -f2)
+    CLUSTER_NAME=$(grep 'CLUSTER_NAME=' gw-setup.properties | cut -d'=' -f2)
+    CLUSTER_DISPLAY_NAME=$(grep 'CLUSTER_DISPLAY_NAME=' gw-setup.properties | cut -d'=' -f2)
 
     # 2. Create a temporary file with 2-space indent for the header
     # and 4-space indent for the items inside.
@@ -176,6 +178,9 @@ EOF
     # 4. Replace the empty brackets with the multiline block from temp file
     # This specifically targets the line with '[]' to avoid double patching
     sed -i -e '/allowedAccessPermissions: \[\]/ {' -e 'r permissions.tmp' -e 'd' -e '}' "$VALUES_FILE"
+
+    sed -i "s/clusterName:.*/clusterName: $CLUSTER_NAME/" "$VALUES_FILE"
+    sed -i "s/initialClusterDisplayName:.*/initialClusterDisplayName: $CLUSTER_DISPLAY_NAME/" "$VALUES_FILE"
 
     # Clean up
     rm permissions.tmp

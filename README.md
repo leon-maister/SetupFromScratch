@@ -41,7 +41,6 @@ The `gw-install-prep.sh` script handles the **heavy lifting** before the Helm de
 ### 📂 Gateway Settings (gw-setup.properties)
 - **GATEWAY_ACCESS_ID**: The ID for the Gateway identity.
 - **ADMIN_ACCESS_ID**: The ID granted administrative permissions.
-- **CLUSTER_NAME**: Unique identifier for this cluster in Akeyless.
 
 ### 🛠️ Preparation Scope:
 - **Environment & Context Validation**: Checks for configuration files and creates the target **Kubernetes Namespace** if it doesn't exist.

@@ -34,8 +34,9 @@ CURRENT_CONTEXT=$(kubectl config current-context)
 # Automatically set the values file name based on the NAMESPACE
 VALUES_FILE="${NAMESPACE}_values.yaml"
 
-# --- Safety Check: Confirm Kubernetes Context ---
-printf "${YELLOW}ATTENTION: You are about to run the script in the following context: ${NC}${CYAN}${CURRENT_CONTEXT}${NC}\n"
+# --- Safety Check: Confirm Kubernetes Context and Namespace ---
+printf "${YELLOW}ATTENTION: Context: ${NC}${CYAN}${CURRENT_CONTEXT}${NC}\n"
+printf "${YELLOW}           Namespace: ${NC}${CYAN}${NAMESPACE}${NC}\n"
 printf "${YELLOW}Is this correct? (Type 'Yes' to continue): ${NC}"
 read user_confirmation
 
@@ -44,7 +45,7 @@ if [ "$user_confirmation" != "Yes" ]; then
     exit 1
 fi
 
-printf "${GREEN}Confirmation received. Proceeding...${NC}\n"
+printf "${GREEN}Confirmation received. Proceeding in namespace $NAMESPACE...${NC}\n"
 
 printf "${CYAN}Creating namespace (if needed)...${NC}\n"
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -

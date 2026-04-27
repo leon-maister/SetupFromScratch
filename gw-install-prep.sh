@@ -107,4 +107,20 @@ else
     printf "${GREEN}SUCCESS:${NC} %s created.\n" "$VALUES_FILE"
 fi
 
+# --- Kubernetes Secret Provisioning ---
+
+# 1. Extract the Gateway Access Key accurately (preserving any '=' signs within the key)
+# Using sed to remove the prefix and keep the rest of the string intact
+GW_ACCESS_KEY=$(grep 'GATEWAY_ACCESS_KEY=' gw-setup.properties | sed 's/^GATEWAY_ACCESS_KEY=//')
+
+echo "Creating Kubernetes secret 'access-key' in namespace $NAMESPACE..."
+
+# 2. Create the secret using the full plaintext Access Key
+# Using 'echo -n' to prevent adding any trailing newline characters
+kubectl create secret generic access-key \
+  --from-literal=gateway-access-key="$(echo -n "$GW_ACCESS_KEY")" \
+  -n "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
+
+printf "${GREEN}SUCCESS: Secret 'access-key' provisioned correctly.${NC}\n"
+
 printf "\n${GREEN} Environment preparation completed successfully.${NC}\n"

@@ -38,17 +38,17 @@ The `gw-install-prep.sh` script handles the **heavy lifting** before the Helm de
 - **CLUSTER_NAME**: The unique ID for this cluster within Akeyless.
 - **CLUSTER_DISPLAY_NAME**: The human-readable name for the cluster in the Akeyless UI.
 
+### 📂 Gateway Settings (gw-setup.properties)
+- **GATEWAY_ACCESS_ID**: The ID for the Gateway identity.
+- **ADMIN_ACCESS_ID**: The ID granted administrative permissions.
+- **CLUSTER_NAME**: Unique identifier for this cluster in Akeyless.
+
 ### 🛠️ Preparation Scope:
 - **Environment & Context Validation**: Checks for configuration files and creates the target **Kubernetes Namespace** if it doesn't exist.
 - **Kubernetes Secret Provisioning**: Automatically creates K8s secrets for both Gateway credentials and the generated Customer Fragment. Skips if already exists (**Idempotency**).
 - **Dynamic Helm Values Patching**: 
     - Downloads the latest `values.yaml` from the Akeyless Helm chart and renames it using the target Namespace (e.g., `${NAMESPACE}_values.yaml`).
     - Injects Gateway IDs, Admin Permissions, Cluster Name, and Cluster Display Name.
-
-## 📂 Gateway Settings (gw-setup.properties)
-- **GATEWAY_ACCESS_ID**: The ID for the Gateway identity.
-- **ADMIN_ACCESS_ID**: The ID granted administrative permissions.
-- **CLUSTER_NAME**: Unique identifier for this cluster in Akeyless.
 
 ---
 **Maintained by**: [leon-maister](https://github.com/leon-maister)

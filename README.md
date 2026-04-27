@@ -34,8 +34,6 @@ The `gw-install-prep.sh` script handles the **heavy lifting** before the Helm de
 - **Dynamic Helm Values Patching**: 
     - Downloads the latest `values.yaml` from the Akeyless Helm chart.
     - Injects Cluster Name, Gateway IDs, and Admin Permissions using `sed`.
-    - Ensures **Perfect YAML Integrity** (2/4/6 spaces) for the `allowedAccessPermissions` block.
-    - Only patches if the file is new or the `PATCH_VALUES_YAML` toggle is enabled.
 
 ## ⚙️ Configuration Variables
 Managed through `.properties` files:

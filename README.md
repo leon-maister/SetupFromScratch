@@ -58,11 +58,12 @@ Once Phase 1 is complete, run the preparation engine:
 ./gw-install-prep.sh
 ```
 
-Add the Akeyless Helm repository and update it:
+Add the Akeyless Helm repository, update it, and deploy the Gateway:
 
 ```bash
 helm repo add akeyless https://akeylesslabs.github.io/helm-charts
 helm repo update
+helm upgrade --install akeyless-gateway akeyless/akeyless-gateway -n YOUR-NAMESPACE -f /home/keyless/Path/to/ValuesFile
 ```
 
 ---

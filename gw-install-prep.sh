@@ -150,14 +150,23 @@ printf "${GREEN}SUCCESS: Secret 'access-key' provisioned correctly.${NC}\n"
 if [ "$SHOULD_PATCH" = "true" ]; then
     printf "${CYAN}Patching %s with dynamic configuration...${NC}\n" "$VALUES_FILE"
 
-    # 1. Extract IDs from properties
-    GW_ACCESS_ID=$(grep 'GATEWAY_ACCESS_ID=' gw-setup.properties | cut -d'=' -f2)
-    ADMIN_ACCESS_ID=$(grep 'ADMIN_ACCESS_ID=' gw-setup.properties | cut -d'=' -f2)
-    CLUSTER_NAME=$(grep 'CLUSTER_NAME=' gw-setup.properties | cut -d'=' -f2)
-    CLUSTER_DISPLAY_NAME=$(grep 'CLUSTER_DISPLAY_NAME=' gw-setup.properties | cut -d'=' -f2)
+    # 1. Extract IDs from the setup properties file
+    GW_ACCESS_ID=$(grep 'GATEWAY_ACCESS_ID=' "$SETUP_FILE" | cut -d'=' -f2)
+    ADMIN_ACCESS_ID=$(grep 'ADMIN_ACCESS_ID=' "$SETUP_FILE" | cut -d'=' -f2)
 
-    # 2. Create a temporary file with 2-space indent for the header
-    # and 4-space indent for the items inside.
+    # 2. Patch Gateway Identity and Auth Type
+    sed -i "s/gatewayAccessId:.*/gatewayAccessId: $GW_ACCESS_ID/" "$VALUES_FILE"
+    sed -i "s/gatewayAccessType:.*/gatewayAccessType: access_key/" "$VALUES_FILE"
+    
+    # 3. FIX 1: Patch Customer Fragments (using the exact key from line 69)
+    # This points to the secret containing the JSON file
+    sed -i "s/customerFragmentsExistingSecret:.*/customerFragmentsExistingSecret: $CUSTOMER_FRAGMENT_SECRET_NAME/" "$VALUES_FILE"
+    
+    # 4. FIX 2: Patch Access Key location (using the correct credential key)
+    # This points to the secret containing the actual 'gateway-access-key' string
+    sed -i "s/gatewayCredentialsExistingSecret:.*/gatewayCredentialsExistingSecret: access-key/" "$VALUES_FILE"
+
+    # 5. Inject Admin Access permissions
     cat <<EOF > permissions.tmp
   allowedAccessPermissions:
     - name: admin-access-key
@@ -165,25 +174,17 @@ if [ "$SHOULD_PATCH" = "true" ]; then
       permissions:
         - admin
 EOF
-
-    # 3. Apply patches with EXACT 4-space indentation
-    # Count carefully: 4 spaces after the second '/'
-    sed -i "s/gatewayAccessId:.*/gatewayAccessId: $GW_ACCESS_ID/" "$VALUES_FILE"
-    sed -i "s/gatewayAccessType:.*/gatewayAccessType: access_key/" "$VALUES_FILE"
-    sed -i "s/gatewayCredentialsExistingSecret:.*/gatewayCredentialsExistingSecret: $CUSTOMER_FRAGMENT_SECRET_NAME/" "$VALUES_FILE"
-    
-    # 4. Replace the placeholder line with our 2-space indented block
-    sed -i -e '/allowedAccessPermissions: \[\]/ {' -e 'r permissions.tmp' -e 'd' -e '}' "$VALUES_FILE"
-    
-    # 4. Replace the empty brackets with the multiline block from temp file
-    # This specifically targets the line with '[]' to avoid double patching
+    # Replace the empty placeholder [] with the multiline block
     sed -i -e '/allowedAccessPermissions: \[\]/ {' -e 'r permissions.tmp' -e 'd' -e '}' "$VALUES_FILE"
 
+    # 6. Patch Cluster configuration
     sed -i "s/clusterName:.*/clusterName: $CLUSTER_NAME/" "$VALUES_FILE"
     sed -i "s/initialClusterDisplayName:.*/initialClusterDisplayName: $CLUSTER_DISPLAY_NAME/" "$VALUES_FILE"
 
-    # Clean up
+    # Clean up temporary artifacts
     rm permissions.tmp
     printf "${GREEN}SUCCESS: %s fully patched and ready.${NC}\n" "$VALUES_FILE"
 fi
+
+
 printf "\n${GREEN} Environment preparation completed successfully.${NC}\n"

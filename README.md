@@ -58,6 +58,13 @@ Once Phase 1 is complete, run the preparation engine:
 ./gw-install-prep.sh
 ```
 
+Add the Akeyless Helm repository and update it:
+
+```bash
+helm repo add akeyless https://akeylesslabs.github.io/helm-charts
+helm repo update
+```
+
 ---
 **Maintained by**: [leon-maister](https://github.com/leon-maister)
 

@@ -32,7 +32,7 @@ fi
 CURRENT_CONTEXT=$(kubectl config current-context)
 
 # Automatically set the values file name based on the NAMESPACE
-VALUES_FILE="${NAMESPACE}_values.yaml"
+VALUES_FILE="${NAMESPACE}_values_2.yaml" #HERE-NEED-CHANGES
 
 # --- Safety Check: Confirm Kubernetes Context and Namespace ---
 printf "${YELLOW}ATTENTION: Context: ${NC}${CYAN}${CURRENT_CONTEXT}${NC}\n"
@@ -119,7 +119,7 @@ fi
 # --- Kubernetes Secret Provisioning ---
 
 # 1. Check if the setup properties file exists
-SETUP_FILE="gw-setup.properties"
+SETUP_FILE="gateway-connection.properties"
 if [ ! -f "$SETUP_FILE" ]; then
     printf "${YELLOW}WARNING: $SETUP_FILE not found!${NC}\n"
     printf "${CYAN}Please create the 'access-key' secret manually later using:${NC}\n"

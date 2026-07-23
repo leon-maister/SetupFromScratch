@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Set UTF-8 locale to prevent terminal corruption
 export LC_ALL=C.UTF-8
@@ -257,7 +257,7 @@ echo " Access ID:  $GW_ACCESS_ID"
 printf " Access Key: %b\n" "$GW_ACCESS_KEY"
 echo "--------------------------------------------------------"
 
-GW_PROPS_FILE="gw-setup.properties"
+GW_PROPS_FILE="gateway-connection.properties"
 
 cat > "$GW_PROPS_FILE" <<EOF
 ADMIN_AUTH_METHOD_NAME=$AUTH_METHOD_NAME
